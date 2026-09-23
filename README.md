@@ -4,7 +4,7 @@ A reproducible notebook project asking how publicly reported AI capability chang
 
 ## Status
 
-**Starter scaffold.** The notebook runs without downloaded data and labels missing inputs. It contains no results or conclusions yet. Source snapshots, cleaning decisions, model identity mapping, and final analysis remain to be added.
+**Data acquisition stage.** Running the notebook fetches public source files and caches them locally. The notebook has no final cross-source conclusion yet. Cleaning decisions, model identity mapping, and the comparison design still require review.
 
 ## Get started
 
@@ -15,7 +15,13 @@ pip install -r requirements.txt
 jupyter lab
 ```
 
-Open `notebooks/01_ai_capability_analysis.ipynb` and run all cells. The notebook uses NumPy, pandas, and Matplotlib. Populate the source-specific files described in `data/SOURCES.md` to activate its analysis sections.
+Open `notebooks/01_ai_capability_analysis.ipynb` and run all cells. The first run fetches METR's public YAML, all paired LiveBench release CSV/JSON files, and SWE-bench's leaderboard JSON through public HTTPS endpoints; no key is required. It stores the responses under `data/raw/`, normalized tables under `data/processed/`, and hashes/revisions in `data/raw/manifest.json`. Reruns use this cache. Call `fetch_all(ROOT, refresh=True)` to take a new snapshot. The initial fetch may take a couple of minutes.
+
+The same acquisition can be run from the repository root without opening Jupyter:
+
+```bash
+python -c "from pathlib import Path; from src.data_sources import fetch_all; print(fetch_all(Path('.'))['row_counts'])"
+```
 
 ## Project layout
 
@@ -24,7 +30,7 @@ notebooks/01_ai_capability_analysis.ipynb  Research narrative and analysis
 data/SOURCES.md                         Source and schema notes
 data/raw/                              Downloaded source snapshots (local)
 data/processed/                        Cleaned analysis tables (local)
-src/                                   Reserved for reusable code
+src/data_sources.py                    Public fetch and normalization code
 ```
 
 ## Research design
@@ -42,12 +48,12 @@ The previous discussion also proposed a large model database for random sampling
 
 | Source | What to inspect | Starting point |
 | --- | --- | --- |
-| METR time horizon | Agent success by task duration and published fits | [METR analysis repository](https://github.com/METR/eval-analysis-public) |
-| LiveBench | Category and task scores, with benchmark release pinned | [LiveBench repository](https://github.com/LiveBench/LiveBench) |
-| SWE-bench | Verified leaderboard submissions and resolved percentage | [SWE-bench leaderboard repository](https://github.com/SWE-bench/swe-bench.github.io) |
+| METR time horizon | Published Time Horizon 1.1 YAML, including p50 estimates | [METR results page](https://metr.org/time-horizons/) |
+| LiveBench | Dated release tables and category mappings, pinned to one GitHub commit | [LiveBench release format](https://github.com/LiveBench/new-livebench) |
+| SWE-bench | Verified leaderboard submissions and resolved percentage, pinned to one GitHub commit | [SWE-bench leaderboard repository](https://github.com/SWE-bench/swe-bench.github.io) |
 
-These are source candidates, not pre-merged data. See `data/SOURCES.md` for the snapshot and schema checklist. Human-preference data can be added later once a source with usable historical snapshots and stable comparison rules is selected.
+These are separate datasets, not one merged intelligence score. The published LiveBench series has no September 2025 release; its nearest dated tables are November 2025 and June 2026. METR's site asset does not provide a per-model evaluation date, while SWE-bench dates denote submissions rather than model releases. See `data/SOURCES.md` for exact fields and caveats. Human-preference data can be added once comparable historical snapshots are established.
 
 ## Reproducibility and publication
 
-Record the download URL, retrieval date, upstream revision, license, filtering rules, and any model-name joins for each snapshot. Source datasets may be large or have redistribution constraints, so raw and processed data are excluded from Git; keep a documented acquisition path. Export figures after running the notebook and link the public repository from the eventual Medium article. Do not publish a directional conclusion until the analysis has run.
+The fetcher records URL, retrieval date, GitHub revision where available, and SHA-256 for each source file. Review upstream licenses and any redistribution restrictions before republishing raw data. Raw and processed data are excluded from Git, while the acquisition code remains reproducible. Export figures after running the notebook and link the public repository from the eventual Medium article. Do not publish a directional conclusion until comparable cohorts and missingness have been analyzed.
