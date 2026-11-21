@@ -1,10 +1,12 @@
 # Has AI Become Dumber?
 
-A reproducible notebook project asking how publicly reported AI capability changed between September 2025 and September 2026. The analysis will compare separate measures of autonomous task completion, benchmark performance, and software engineering performance. It will not assume that a higher benchmark score implies a better everyday product experience.
+A reproducible notebook project asking how publicly reported AI capability changed from late 2025 to mid-2026. The analysis compares separate measures of autonomous task completion, benchmark performance, and software engineering performance. It will not assume that a higher benchmark score implies a better everyday product experience.
+
+> Reframed question: the original September 2025 vs September 2026 headline is not supported by the data — METR Time Horizon 1.1 reaches April 2026 model releases, LiveBench v1 reaches June 2026 and skips September 2025, and SWE-bench dates are submissions, not model releases. See `DESIGN.md` and `notebooks/02_comparison_and_projection.ipynb`.
 
 ## Status
 
-**Data acquisition stage.** Running the notebook fetches public source files and caches them locally. The notebook has no final cross-source conclusion yet. Cleaning decisions, model identity mapping, and the comparison design still require review.
+**Comparison implemented.** The comparison design is in `DESIGN.md`, implemented in `src/comparison.py`, and run in `notebooks/02_comparison_and_projection.ipynb`. The projection is in `PROJECTION.md`. Running notebook 01 still fetches public source files and caches them locally. LiveBench v1 tables were not fetchable from their original source on 2026-11-21 (see notebook 02), so no paired LiveBench v1 finding is claimed.
 
 ## Get started
 
@@ -27,18 +29,24 @@ python -c "from pathlib import Path; from src.data_sources import fetch_all; pri
 
 ```text
 notebooks/01_ai_capability_analysis.ipynb  Research narrative and analysis
+notebooks/02_comparison_and_projection.ipynb  Comparison and projection (DESIGN.md)
+DESIGN.md                               Comparison design (late 2025 vs mid-2026)
+PROJECTION.md                           Projection, observed vs projected
 data/SOURCES.md                         Source and schema notes
 data/raw/                              Downloaded source snapshots (local)
 data/processed/                        Cleaned analysis tables (local)
 src/data_sources.py                    Public fetch and normalization code
+src/comparison.py                      Pure comparison helpers (alias mapping, cohorts, paired diff, dedup)
 ```
 
 ## Research design
 
-- **Question:** Do comparable public evaluations show a decline in measurable model capability from September 2025 to September 2026? Which dimensions move differently?
+See `DESIGN.md` for the full design. In short:
+
+- **Question:** Do comparable public evaluations show a decline in measurable model capability from late 2025 to mid-2026? Which dimensions move differently?
 - **Unit of observation:** Depends on the source: an evaluated agent, model and task run, benchmark score, or leaderboard submission. Record the unit before sampling.
 - **Sampling:** Use a fixed NumPy seed for reproducible random exploration. Sample within a defined frame and period; a random sample of all published models is not representative of frontier models or user experience.
-- **Comparison:** Compare like with like within a source, task suite, version, and metric. Preserve release date and evaluation or snapshot date separately. Use broad windows only when they contain adequate comparable observations.
+- **Comparison:** Compare like with like within a source, task suite, version, and metric. Preserve release date and evaluation or snapshot date separately. Use broad windows only when they contain adequate comparable observations. METR: Time Horizon 1.1 only, release date only, before 2025-09-01 vs 2025-09-01 to 2026-04-30. LiveBench v1: paired only, Nov 2025 vs Jun 2026. SWE-bench Verified: submission date only, Sep–Dec 2025 vs Jan–Sep 2026, first submission per (system, model).
 - **Uncertainty:** Bootstrap an explicitly named statistic when independent observations support it. Repeated submissions from one model family, correlated task runs, and leaderboard selection can invalidate naive intervals.
 - **Synthesis:** Report each measure separately. Do not average METR time horizons, LiveBench scores, SWE-bench resolution rates, or Arena preference ratings into one intelligence score.
 
